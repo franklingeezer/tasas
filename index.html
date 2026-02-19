@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Attendance Analytics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- DaisyUI + Tailwind -->
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+
+
+  <div class="container relative">
+
+    <!-- Logout Button -->
+    <button id="logoutBtn" class="btn btn-outline btn-secondary hover:scale-110 hover:ease-in-out px-5 text-lg absolute top-6 right-6">
+      Logout
+    </button>
+
+    <h1 class="main-title">📊 Smart Attendance Analytics</h1>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="card">Students<br><span id="totalCount">0</span></div>
+      <div class="card">Avg Attendance<br><span id="percentage">0%</span></div>
+      <div class="card danger">Low Attendance<br><span id="lowAttendance">0</span></div>
+    </div>
+
+    <!-- SUBJECT CHART -->
+    <div class="panel">
+      <h2>📘 Subject-wise Attendance (%)</h2>
+      <div class="chart-container">
+        <canvas id="subjectChart"></canvas>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="panel">
+      <h2>📋 Student Attendance (Course-wise)</h2>
+      <table id="attendanceTable">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Name</th>
+            <th>Course</th>
+            <th>Total</th>
+            <th>Present</th>
+            <th>%</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+  </div>
+
+
+
+  <!-- ========================= -->
+  <!-- STUDENT INSIGHT MODAL -->
+  <!-- ========================= -->
+  <dialog id="insightModal" class="modal backdrop-blur-md bg-black/70">
+
+    <div class="modal-box max-w-7xl w-11/12 min-h-[60vh]
+              bg-[#070c14]
+
+              text-white
+              overflow-hidden
+              rounded-2xl
+              shadow-2xl">
+
+      <!-- ================= HEADER ================= -->
+      <div class="flex justify-between items-center
+                px-20 py-8
+                border-b border-white/10">
+
+        <div>
+          <h2 class="text-3xl font-semibold tracking-tight">
+            Student Attendance Insight
+          </h2>
+          <p class="text-gray-400 text-sm mt-2">
+            Detailed performance overview
+          </p>
+        </div>
+
+        <div class="pr-6">
+          <form method="dialog">
+            <button class="btn btn-outline btn-secondary hover:scale-110 hover:ease-in-out px-5 text-lg">Close</button>
+          </form>
+        </div>
+
+
+      </div>
+
+      <!-- ================= INNER BORDERED CONTENT ================= -->
+      <div class="px-14 py-8
+">
+
+        <div class="border border-white/25
+            rounded-xl
+            px-20 py-8
+            bg-[#111c2d]
+            shadow-2xl
+            space-y--1">
+
+
+
+
+          <!-- ===== INFO GRID ===== -->
+          <div class="grid grid-cols-2 gap-x-20 gap-y-3">
+
+            <div>
+              <p class="text-gray-400 mb-2">Student ID</p>
+              <p id="insightId" class="text-lg font-medium"></p>
+            </div>
+
+            <div>
+              <p class="text-gray-400 mb-2">Total Classes</p>
+              <p id="insightTotal" class="text-lg font-medium"></p>
+            </div>
+
+            <div>
+              <p class="text-gray-400 mb-2">Name</p>
+              <p id="insightName" class="text-lg font-medium"></p>
+            </div>
+
+            <div>
+              <p class="text-gray-400 mb-2">Present</p>
+              <p id="insightPresent" class="text-lg font-medium"></p>
+            </div>
+
+            <div>
+              <p class="text-gray-400 mb-2">Course</p>
+              <p id="insightCourse" class="text-lg font-medium"></p>
+            </div>
+
+            <div>
+              <p class="text-gray-400 mb-2">Attendance</p>
+              <p id="insightPercent" class="text-lg font-medium"></p>
+            </div>
+
+            <div>
+              <p class="text-gray-400 mb-2">Status</p>
+              <span id="insightStatus" class="px-4 py-1.5 text-sm font-medium rounded-md inline-block">
+              </span>
+            </div>
+
+            <div>
+              <p class="text-gray-400 mb-2">Trust Score</p>
+              <p id="insightTrust" class="text-lg font-medium"></p>
+            </div>
+
+          </div>
+
+          <!-- ===== PROGRESS SECTION ===== -->
+          <div class="space-y-10">
+
+            <div>
+              <p class="text-xl font-medium mb-4">
+                Attendance Progress
+              </p>
+
+              <div class="w-full h-6 bg-gray-800 rounded-md overflow-hidden">
+                <div id="attendanceProgress" class="h-full transition-all duration-700 ease-out
+                          bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-400">
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <p class="text-xl font-medium mb-4">
+                Trust Score
+              </p>
+
+              <div class="w-full h-6 bg-gray-800 rounded-md overflow-hidden">
+                <div id="trustProgress" class="h-full transition-all duration-700 ease-out
+                          bg-green-500">
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ===== REMARKS ===== -->
+          <div class="pt-8 border-t border-white/10 space-y-6">
+
+            <p id="attendanceRemark" class="text-xl font-semibold"></p>
+
+            <p id="attendanceAdvice" class="text-gray-400"></p>
+
+            <p id="trustRemark" class="text-xl font-semibold"></p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </dialog>
+
+
+
+
+
+
+  <!-- Firebase Scripts -->
+  <script type="module" src="firebaseConfig.js"></script>
+  <script type="module" src="app.js"></script>
+
+</body>
+
+</html>
