@@ -400,3 +400,8 @@ canvas {
     opacity: 0;
   }
 }
+
+
+.table-glass-container::before {
+  pointer-events: none;
+}

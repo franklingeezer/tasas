@@ -1,38 +1,18 @@
 import { db, auth } from "./firebaseConfig.js";
-
-import { onAuthStateChanged, signOut } from 
-"https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-import { collection, onSnapshot } from 
-"https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { onAuthStateChanged, signOut } from
+  "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { collection, onSnapshot } from
+  "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "login.html";
-  }
+  if (!user) window.location.href = "login.html";
 });
 
 let chartInstance = null;
 let studentCourseStats = {};
+let currentSearchValue = "";
 
-const totalCountEl = document.getElementById("totalCount");
-const percentageEl = document.getElementById("percentage");
-const lowAttendanceEl = document.getElementById("lowAttendance");
-
-const insightId = document.getElementById("insightId");
-const insightName = document.getElementById("insightName");
-const insightCourse = document.getElementById("insightCourse");
-const insightTotal = document.getElementById("insightTotal");
-const insightPresent = document.getElementById("insightPresent");
-const insightPercent = document.getElementById("insightPercent");
-const insightStatus = document.getElementById("insightStatus");
-const insightTrust = document.getElementById("insightTrust");
-
-const progressBar = document.getElementById("attendanceProgress");
-const trustProgress = document.getElementById("trustProgress");
-const attendanceRemark = document.getElementById("attendanceRemark");
-const attendanceAdvice = document.getElementById("attendanceAdvice");
-const trustRemark = document.getElementById("trustRemark");
+// ================= DASHBOARD LOAD =================
 
 function loadDashboard() {
 
@@ -77,31 +57,32 @@ function loadDashboard() {
       if (d.status === "PRESENT") studentCourseStats[key].present++;
     });
 
-    totalCountEl.innerText = Object.keys(studentCourseStats).length;
-    percentageEl.innerText = total
-      ? Math.round((present / total) * 100) + "%"
-      : "0%";
+    document.getElementById("totalCount").innerText =
+      Object.keys(studentCourseStats).length;
 
-    lowAttendanceEl.innerText = Object.values(studentCourseStats)
-      .filter(s => (s.present / s.total) * 100 < 75).length;
+    document.getElementById("percentage").innerText =
+      total ? Math.round((present / total) * 100) + "%" : "0%";
+
+    document.getElementById("lowAttendance").innerText =
+      Object.values(studentCourseStats)
+        .filter(s => (s.present / s.total) * 100 < 75).length;
 
     drawChart(subjectStats);
     renderTable();
 
-    // 🔔 Toast detection
     if (!firstLoad) {
       snapshot.docChanges().forEach(change => {
         const data = change.doc.data();
 
         if (change.type === "added") {
-          showToast(
+          addRecentActivity(
             `📌 Attendance recorded for ${data.name}`,
             "info"
           );
         }
 
         if (change.type === "modified" && data.status === "PRESENT") {
-          showToast(
+          addRecentActivity(
             `✅ ${data.name} marked PRESENT`,
             "success"
           );
@@ -110,12 +91,13 @@ function loadDashboard() {
     }
 
     firstLoad = false;
-
   });
 }
 
+// ================= CHART =================
 
 function drawChart(subjectStats) {
+
   const ctx = document.getElementById("subjectChart").getContext("2d");
   if (chartInstance) chartInstance.destroy();
 
@@ -134,70 +116,31 @@ function drawChart(subjectStats) {
         borderRadius: 12
       }]
     },
-options: {
-  responsive: true,
-  maintainAspectRatio: false,
-
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      backgroundColor: "#111c2d",
-      titleColor: "#ffffff",
-      bodyColor: "#cbd5e1",
-      borderColor: "rgba(99,102,241,0.4)",
-      borderWidth: 1,
-      padding: 12,
-      cornerRadius: 8,
-      callbacks: {
-        label: function(context) {
-          return context.raw + "%";
-        }
-      }
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, max: 100 } }
     }
-  },
-
-  scales: {
-    x: {
-      ticks: {
-        color: "#cbd5e1",
-        font: {
-          size: 13,
-          weight: "500"
-        }
-      },
-      grid: {
-        display: false
-      }
-    },
-    y: {
-      beginAtZero: true,
-      max: 100,
-      ticks: {
-        color: "#cbd5e1",
-        callback: function(value) {
-          return value + "%";
-        }
-      },
-      grid: {
-        color: "rgba(255,255,255,0.05)"
-      }
-    }
-  }
-}
-
   });
 }
 
+// ================= TABLE =================
 
 function renderTable() {
+
   const tbody = document.querySelector("#attendanceTable tbody");
   tbody.innerHTML = "";
 
   Object.values(studentCourseStats).forEach(s => {
+
     const percent = Math.round((s.present / s.total) * 100);
-    const status = percent < 75 ? "LOW" : percent < 90 ? "NORMAL" : "PERFECT";
+    const status =
+      percent < 75 ? "LOW" :
+      percent < 90 ? "NORMAL" : "PERFECT";
 
     const tr = document.createElement("tr");
+
     tr.innerHTML = `
       <td>${s.studentId}</td>
       <td>${s.name}</td>
@@ -205,72 +148,90 @@ function renderTable() {
       <td>${s.total}</td>
       <td>${s.present}</td>
       <td>${percent}%</td>
-      <td class=""><span class="status-pill rounded-full text-lg px-4 py-2  font-semibold status-${status.toLowerCase()}">${status}</span></td>
+      <td>
+        <span class="status-pill rounded-full text-lg px-4 py-2 font-semibold status-${status.toLowerCase()}">
+          ${status}
+        </span>
+      </td>
     `;
-
-    tr.onclick = () => {
-  showInsight(s);
-  const modal = document.getElementById("insightModal");
-modal.showModal();
-document.body.style.overflow = "hidden";
-
-
-};
 
     tbody.appendChild(tr);
   });
+
+  applySearchFilter(); // Re-apply search after re-render
 }
 
-function showInsight(s) {
-  const percent = Math.round((s.present / s.total) * 100);
-  const trust = s.trust ?? percent;
+// ================= SEARCH SYSTEM =================
 
-  insightId.innerText = s.studentId;
-  insightName.innerText = s.name;
-  insightCourse.innerText = s.subject;
-  insightTotal.innerText = s.total;
-  insightPresent.innerText = s.present;
-  insightPercent.innerText = percent + "%";
-  insightTrust.innerText = trust + "%";
+function applySearchFilter() {
 
-  progressBar.style.width = percent + "%";
-trustProgress.style.width = trust + "%";
+  const rows = document.querySelectorAll("#attendanceTable tbody tr");
 
+  rows.forEach(row => {
 
+    const id = row.cells[0].innerText.toLowerCase();
+    const name = row.cells[1].innerText.toLowerCase();
 
+    if (
+      id.includes(currentSearchValue) ||
+      name.includes(currentSearchValue)
+    ) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
 
-  trustProgress.className = "";
-
-// Dynamic Status Color
-insightStatus.className =
-  "px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-300";
-
-if (percent < 75) {
-  insightStatus.innerText = "LOW";
-  insightStatus.classList.add("bg-red-500/15", "text-red-400");
-}
-else if (percent < 90) {
-  insightStatus.innerText = "NORMAL";
-  insightStatus.classList.add("bg-yellow-500/15", "text-yellow-400");
-}
-else {
-  insightStatus.innerText = "PERFECT";
-  insightStatus.classList.add("bg-white/10", "text-white");
+  });
 }
 
+function initializeSearch() {
 
-  attendanceRemark.innerText =
-    percent < 75 ? "⚠ At risk of failing" :
-    percent < 90 ? "⚠ Acceptable attendance" :
-    "✅ Excellent attendance";
+  const input = document.getElementById("searchInput");
+  if (!input) return;
 
-  attendanceAdvice.innerText =
-    percent < 75 ? "Immediate improvement required." :
-    percent < 90 ? "Maintain consistency." :
-    "Great job!";
+  input.addEventListener("input", (e) => {
+    currentSearchValue = e.target.value.toLowerCase();
+    applySearchFilter();
+  });
 }
+
+// ================= RECENT ACTIVITY =================
+
+function addRecentActivity(message, type = "info") {
+
+  const container = document.getElementById("recentActivityList");
+  if (!container) return;
+
+  const item = document.createElement("div");
+
+  let colorClass = "border-white/10";
+  if (type === "success") colorClass = "border-green-500/30";
+
+  item.className = `
+    bg-white/5 border ${colorClass}
+    rounded-xl px-4 py-3
+    text-white/80 text-sm
+  `;
+
+  const time = new Date().toLocaleTimeString();
+
+  item.innerHTML = `
+    <div class="flex justify-between items-center">
+      <span>${message}</span>
+      <span class="text-xs text-white/40">${time}</span>
+    </div>
+  `;
+
+  container.prepend(item);
+
+  if (container.children.length > 8) {
+    container.removeChild(container.lastChild);
+  }
+}
+
+// ================= LOGOUT =================
+
 const logoutBtn = document.getElementById("logoutBtn");
-
 if (logoutBtn) {
   logoutBtn.addEventListener("click", async () => {
     await signOut(auth);
@@ -278,43 +239,9 @@ if (logoutBtn) {
   });
 }
 
-// Modal scroll control
-const modal = document.getElementById("insightModal");
+// ================= INIT =================
 
-if (modal) {
-  modal.addEventListener("close", () => {
-    document.body.style.overflow = "auto";
-  });
-}
-
-document.querySelectorAll(".sortable").forEach((header, index) => {
-  header.addEventListener("click", () => {
-    const rows = Array.from(
-      document.querySelector("#attendanceTable tbody").rows
-    );
-
-    const isAsc = header.classList.contains("active-asc");
-    document.querySelectorAll(".sortable").forEach(h => 
-      h.classList.remove("active-asc", "active-desc")
-    );
-
-    header.classList.add(isAsc ? "active-desc" : "active-asc");
-
-    rows.sort((a, b) => {
-      const valA = a.cells[index].innerText;
-      const valB = b.cells[index].innerText;
-
-      return isAsc
-        ? valB.localeCompare(valA, undefined, { numeric: true })
-        : valA.localeCompare(valB, undefined, { numeric: true });
-    });
-
-    const tbody = document.querySelector("#attendanceTable tbody");
-    tbody.innerHTML = "";
-    rows.forEach(row => tbody.appendChild(row));
-  });
+window.addEventListener("load", () => {
+  initializeSearch();
+  loadDashboard();
 });
-
-
-
-loadDashboard();

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <title>Smart Attendance Analytics</title>
@@ -19,219 +18,182 @@
 
 <body>
 
+<!-- ================= NAVBAR ================= -->
+<nav class="fixed top-0 left-0 w-full z-50">
+  <div class="max-w-7xl mx-auto px-6 py-4">
+    <div class="flex items-center justify-between
+                bg-white/10 backdrop-blur-xl
+                border border-white/20
+                rounded-2xl
+                px-8 py-3
+                shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
 
+      <!-- Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl
+                    bg-gradient-to-tr from-indigo-500 to-purple-600
+                    flex items-center justify-center
+                    text-white font-bold text-lg shadow-lg">
+          T
+        </div>
+        <span class="text-white text-xl font-semibold tracking-wide">
+          TASAS
+        </span>
+      </div>
 
-  <div class="container relative">
+      <!-- Links -->
+      <div class="hidden md:flex items-center gap-8 text-white/80 text-sm font-medium">
+        <button onclick="showSection('dashboard', this)"
+          class="nav-link text-white transition">
+          Dashboard
+        </button>
 
-    <!-- Logout Button -->
-    <button id="logoutBtn" class="btn btn-outline btn-secondary hover:scale-110 hover:ease-in-out px-5 text-lg absolute top-6 right-6">
-      Logout
-    </button>
+        <button onclick="showSection('analytics', this)"
+          class="nav-link text-white/70 transition hover:text-white">
+          Analytics
+        </button>
+      </div>
 
-    <h1 class="text-[35px] font-semibold mb-8 text-white 
-           flex items-center justify-center gap-3
-           tracking-wide whitespace-nowrap"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-  <path fill-rule="evenodd" d="M2.25 13.5a8.25 8.25 0 0 1 8.25-8.25.75.75 0 0 1 .75.75v6.75H18a.75.75 0 0 1 .75.75 8.25 8.25 0 0 1-16.5 0Z" clip-rule="evenodd" />
-  <path fill-rule="evenodd" d="M12.75 3a.75.75 0 0 1 .75-.75 8.25 8.25 0 0 1 8.25 8.25.75.75 0 0 1-.75.75h-7.5a.75.75 0 0 1-.75-.75V3Z" clip-rule="evenodd" />
-</svg>
+      <!-- Logout -->
+      <button id="logoutBtn"
+        class="px-6 py-3 rounded-lg
+               bg-gradient-to-r from-indigo-500 to-purple-600
+               text-white text-lg font-medium
+               shadow-lg hover:scale-105
+               transition duration-300">
+        Logout
+      </button>
 
+    </div>
+  </div>
+</nav>
 
-        Smart Attendance Analytics</h1>
+<!-- ================= MAIN CONTAINER ================= -->
+<div class="container relative pt-32">
 
-    <!-- STATS -->
-    <div class="stats">
+  <h1 class="text-[35px] font-semibold mb-8 text-white 
+           flex items-center justify-center gap-3 tracking-wide">
+    Smart Attendance Analytics
+  </h1>
+
+  <!-- ================= DASHBOARD SECTION ================= -->
+  <div id="dashboardSection">
+
+    <!-- Stats -->
+    <div class="stats mb-8">
       <div class="card">Students<br><span id="totalCount">0</span></div>
       <div class="card">Avg Attendance<br><span id="percentage">0%</span></div>
       <div class="card danger">Low Attendance<br><span id="lowAttendance">0</span></div>
     </div>
 
-    <!-- SUBJECT CHART -->
+    <!-- Chart -->
     <div class="chart-glass-container">
-
-      <h2>📘 Subject-wise Attendance (%)</h2>
-      <div class="chart-container">
+      <h2 class="text-white text-lg mb-4">📘 Subject-wise Attendance (%)</h2>
+      <div class="chart-container h-[350px]">
         <canvas id="subjectChart"></canvas>
       </div>
     </div>
 
-    <!-- TABLE -->
-    <div class="table-glass-container">
-      <h2>📋 Student Attendance (Course-wise)</h2>
-      <table id="attendanceTable">
-        <thead>
-          <tr>
-            <th class="sortable">Student ID</th>
-            <th>Name</th>
-            <th>Course</th>
-            <th>Total</th>
-            <th>Present</th>
-            <th>%</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
+    <!-- ================= RECENT ACTIVITY ================= -->
+<div class="mt-8 bg-white/5 backdrop-blur-xl border border-white/10
+            rounded-2xl p-6 shadow-lg">
+
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-white text-lg font-semibold">
+      🕒 Recent Activity
+    </h2>
+    <span class="text-sm text-white/50">
+      Live updates
+    </span>
+  </div>
+
+  <div id="recentActivityList" class="space-y-4 max-h-[300px] overflow-y-auto">
+
+    <!-- Activity items will appear here dynamically -->
 
   </div>
 
+</div>
 
+  </div>
 
-  <!-- ========================= -->
-  <!-- STUDENT INSIGHT MODAL -->
-  <!-- ========================= -->
-  <dialog id="insightModal" class="modal backdrop-blur-md bg-black/70">
+  <!-- ================= ANALYTICS SECTION ================= -->
+  <div id="analyticsSection" class="hidden">
 
-    <div class="modal-box max-w-7xl w-11/12 min-h-[60vh]
-              bg-[#070c14]
+    <div class="table-glass-container">
 
-              text-white
-              overflow-hidden
-              rounded-2xl
-              shadow-2xl">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-white text-lg font-semibold">
+      📋 Student Attendance (Course-wise)
+    </h2>
 
-      <!-- ================= HEADER ================= -->
-      <div class="flex justify-between items-center
-                px-20 py-8
-                border-b border-white/10">
+    <!-- Search Input -->
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Search by ID or Name..."
+      class="px-4 py-2 rounded-lg bg-white/10 border border-white/20
+             text-white placeholder-white/50 text-sm
+             focus:outline-none focus:ring-2 focus:ring-indigo-500
+             transition-all duration-300 w-64"
+    />
+  </div>
 
-        <div>
-          <h2 class="text-3xl font-semibold tracking-tight">
-            Student Attendance Insight
-          </h2>
-          <p class="text-gray-400 text-sm mt-2">
-            Detailed performance overview
-          </p>
-        </div>
+  <table id="attendanceTable">
+    <thead>
+      <tr>
+        <th class="sortable">Student ID</th>
+        <th>Name</th>
+        <th>Course</th>
+        <th>Total</th>
+        <th>Present</th>
+        <th>%</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-        <div class="pr-6">
-          <form method="dialog">
-            <button class="btn btn-outline btn-secondary hover:scale-110 hover:ease-in-out px-5 text-lg">Close</button>
-          </form>
-        </div>
+</div>
 
+  </div>
 
-      </div>
+</div>
 
-      <!-- ================= INNER BORDERED CONTENT ================= -->
-      <div class="px-14 py-8
-">
+<!-- Toast -->
+<div id="toastContainer" class="fixed top-6 right-6 space-y-4 z-50"></div>
 
-        <div class="border border-white/25
-            rounded-xl
-            px-20 py-8
-            bg-[#111c2d]
-            shadow-2xl
-            space-y--1">
+<!-- Firebase Scripts -->
+<script type="module" src="firebaseConfig.js"></script>
+<script type="module" src="app.js"></script>
 
+<!-- Section Switch Script -->
+<script>
+  function showSection(section, el) {
+    const dashboard = document.getElementById("dashboardSection");
+    const analytics = document.getElementById("analyticsSection");
 
+    dashboard.classList.add("hidden");
+    analytics.classList.add("hidden");
 
+    if (section === "dashboard") {
+      dashboard.classList.remove("hidden");
+    }
 
-          <!-- ===== INFO GRID ===== -->
-          <div class="grid grid-cols-2 gap-x-20 gap-y-3">
+    if (section === "analytics") {
+      analytics.classList.remove("hidden");
+    }
 
-            <div>
-              <p class="text-gray-400 mb-2">Student ID</p>
-              <p id="insightId" class="text-lg font-medium"></p>
-            </div>
+    // Active link styling
+    document.querySelectorAll(".nav-link").forEach(link => {
+      link.classList.remove("text-white");
+      link.classList.add("text-white/70");
+    });
 
-            <div>
-              <p class="text-gray-400 mb-2">Total Classes</p>
-              <p id="insightTotal" class="text-lg font-medium"></p>
-            </div>
-
-            <div>
-              <p class="text-gray-400 mb-2">Name</p>
-              <p id="insightName" class="text-lg font-medium"></p>
-            </div>
-
-            <div>
-              <p class="text-gray-400 mb-2">Present</p>
-              <p id="insightPresent" class="text-lg font-medium"></p>
-            </div>
-
-            <div>
-              <p class="text-gray-400 mb-2">Course</p>
-              <p id="insightCourse" class="text-lg font-medium"></p>
-            </div>
-
-            <div>
-              <p class="text-gray-400 mb-2">Attendance</p>
-              <p id="insightPercent" class="text-lg font-medium"></p>
-            </div>
-
-            <div>
-              <p class="text-gray-400 mb-2">Status</p>
-              <span id="insightStatus" class="px-4 py-1.5 text-sm font-medium rounded-md inline-block">
-              </span>
-            </div>
-
-            <div>
-              <p class="text-gray-400 mb-2">Trust Score</p>
-              <p id="insightTrust" class="text-lg font-medium"></p>
-            </div>
-
-          </div>
-
-          <!-- ===== PROGRESS SECTION ===== -->
-          <div class="space-y-10">
-
-            <div>
-              <p class="text-xl font-medium mb-4">
-                Attendance Progress
-              </p>
-
-              <div class="w-full h-6 bg-gray-800 rounded-md overflow-hidden">
-                <div id="attendanceProgress" class="h-full transition-all duration-700 ease-out
-                          bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-400">
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <p class="text-xl font-medium mb-4">
-                Trust Score
-              </p>
-
-              <div class="w-full h-6 bg-gray-800 rounded-md overflow-hidden">
-                <div id="trustProgress" class="h-full transition-all duration-700 ease-out
-                          bg-green-500">
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- ===== REMARKS ===== -->
-          <div class="pt-8 border-t border-white/10 space-y-6">
-
-            <p id="attendanceRemark" class="text-xl font-semibold"></p>
-
-            <p id="attendanceAdvice" class="text-gray-400"></p>
-
-            <p id="trustRemark" class="text-xl font-semibold"></p>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </dialog>
-
-
-
-
-
-
-  <!-- Firebase Scripts -->
-  <script type="module" src="firebaseConfig.js"></script>
-  <script type="module" src="app.js"></script>
-
-  <div id="toastContainer" class="fixed top-6 right-6 space-y-4 z-50"></div>
+    el.classList.remove("text-white/70");
+    el.classList.add("text-white");
+  }
+</script>
 
 </body>
-
 </html>
