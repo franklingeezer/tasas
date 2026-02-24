@@ -3,7 +3,7 @@ import { db, auth } from "./firebaseConfig.js";
 import { onAuthStateChanged, signOut } from 
 "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-import { collection, getDocs } from 
+import { collection, onSnapshot } from 
 "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 onAuthStateChanged(auth, (user) => {
@@ -34,53 +34,86 @@ const attendanceRemark = document.getElementById("attendanceRemark");
 const attendanceAdvice = document.getElementById("attendanceAdvice");
 const trustRemark = document.getElementById("trustRemark");
 
-async function loadDashboard() {
-  const snapshot = await getDocs(collection(db, "attendance"));
+function loadDashboard() {
 
-  let total = 0;
-  let present = 0;
-  let subjectStats = {};
-  studentCourseStats = {};
+  const attendanceRef = collection(db, "attendance");
+  let firstLoad = true;
 
-  snapshot.forEach(doc => {
-    const d = doc.data();
-    if (!d.student_id || !d.subject || !d.status) return;
+  onSnapshot(attendanceRef, (snapshot) => {
 
-    total++;
-    if (d.status === "PRESENT") present++;
+    let total = 0;
+    let present = 0;
+    let subjectStats = {};
+    studentCourseStats = {};
 
-    if (!subjectStats[d.subject]) {
-      subjectStats[d.subject] = { total: 0, present: 0 };
+    snapshot.forEach(doc => {
+      const d = doc.data();
+      if (!d.student_id || !d.subject || !d.status) return;
+
+      total++;
+      if (d.status === "PRESENT") present++;
+
+      if (!subjectStats[d.subject]) {
+        subjectStats[d.subject] = { total: 0, present: 0 };
+      }
+
+      subjectStats[d.subject].total++;
+      if (d.status === "PRESENT") subjectStats[d.subject].present++;
+
+      const key = `${d.student_id}_${d.subject}`;
+
+      if (!studentCourseStats[key]) {
+        studentCourseStats[key] = {
+          studentId: d.student_id,
+          name: d.name || "Unknown",
+          subject: d.subject,
+          total: 0,
+          present: 0,
+          trust: d.trust ?? null
+        };
+      }
+
+      studentCourseStats[key].total++;
+      if (d.status === "PRESENT") studentCourseStats[key].present++;
+    });
+
+    totalCountEl.innerText = Object.keys(studentCourseStats).length;
+    percentageEl.innerText = total
+      ? Math.round((present / total) * 100) + "%"
+      : "0%";
+
+    lowAttendanceEl.innerText = Object.values(studentCourseStats)
+      .filter(s => (s.present / s.total) * 100 < 75).length;
+
+    drawChart(subjectStats);
+    renderTable();
+
+    // 🔔 Toast detection
+    if (!firstLoad) {
+      snapshot.docChanges().forEach(change => {
+        const data = change.doc.data();
+
+        if (change.type === "added") {
+          showToast(
+            `📌 Attendance recorded for ${data.name}`,
+            "info"
+          );
+        }
+
+        if (change.type === "modified" && data.status === "PRESENT") {
+          showToast(
+            `✅ ${data.name} marked PRESENT`,
+            "success"
+          );
+        }
+      });
     }
 
-    subjectStats[d.subject].total++;
-    if (d.status === "PRESENT") subjectStats[d.subject].present++;
+    firstLoad = false;
 
-    const key = `${d.student_id}_${d.subject}`;
-    if (!studentCourseStats[key]) {
-      studentCourseStats[key] = {
-        studentId: d.student_id,
-        name: d.name || "Unknown",
-        subject: d.subject,
-        total: 0,
-        present: 0,
-        trust: d.trust ?? null
-      };
-    }
-
-    studentCourseStats[key].total++;
-    if (d.status === "PRESENT") studentCourseStats[key].present++;
   });
-
-  totalCountEl.innerText = Object.keys(studentCourseStats).length;
-  percentageEl.innerText = Math.round((present / total) * 100) + "%";
-
-  lowAttendanceEl.innerText = Object.values(studentCourseStats)
-    .filter(s => (s.present / s.total) * 100 < 75).length;
-
-  drawChart(subjectStats);
-  renderTable();
 }
+
 
 function drawChart(subjectStats) {
   const ctx = document.getElementById("subjectChart").getContext("2d");
@@ -101,30 +134,57 @@ function drawChart(subjectStats) {
         borderRadius: 12
       }]
     },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              return context.raw + "%";
-            }
-          }
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 100,
-          ticks: {
-            callback: function(value) {
-              return value + "%";
-            }
-          }
+options: {
+  responsive: true,
+  maintainAspectRatio: false,
+
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      backgroundColor: "#111c2d",
+      titleColor: "#ffffff",
+      bodyColor: "#cbd5e1",
+      borderColor: "rgba(99,102,241,0.4)",
+      borderWidth: 1,
+      padding: 12,
+      cornerRadius: 8,
+      callbacks: {
+        label: function(context) {
+          return context.raw + "%";
         }
       }
     }
+  },
+
+  scales: {
+    x: {
+      ticks: {
+        color: "#cbd5e1",
+        font: {
+          size: 13,
+          weight: "500"
+        }
+      },
+      grid: {
+        display: false
+      }
+    },
+    y: {
+      beginAtZero: true,
+      max: 100,
+      ticks: {
+        color: "#cbd5e1",
+        callback: function(value) {
+          return value + "%";
+        }
+      },
+      grid: {
+        color: "rgba(255,255,255,0.05)"
+      }
+    }
+  }
+}
+
   });
 }
 
@@ -227,6 +287,33 @@ if (modal) {
   });
 }
 
+document.querySelectorAll(".sortable").forEach((header, index) => {
+  header.addEventListener("click", () => {
+    const rows = Array.from(
+      document.querySelector("#attendanceTable tbody").rows
+    );
+
+    const isAsc = header.classList.contains("active-asc");
+    document.querySelectorAll(".sortable").forEach(h => 
+      h.classList.remove("active-asc", "active-desc")
+    );
+
+    header.classList.add(isAsc ? "active-desc" : "active-asc");
+
+    rows.sort((a, b) => {
+      const valA = a.cells[index].innerText;
+      const valB = b.cells[index].innerText;
+
+      return isAsc
+        ? valB.localeCompare(valA, undefined, { numeric: true })
+        : valA.localeCompare(valB, undefined, { numeric: true });
+    });
+
+    const tbody = document.querySelector("#attendanceTable tbody");
+    tbody.innerHTML = "";
+    rows.forEach(row => tbody.appendChild(row));
+  });
+});
 
 
 
