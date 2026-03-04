@@ -15,66 +15,168 @@
 
 <body class="min-h-screen flex items-center justify-center relative overflow-hidden">
 
+  <!-- Background Overlay -->
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
 
+  <div class="relative z-10 md:flex items-center justify-between max-w-6xl w-full md:px-8">
 
-<div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+    <!-- ================= LOGIN CARD ================= -->
+    <div class="max-w-5xl
+                md:w-[480px] 
+                bg-white/20 
+                backdrop-blur-xl 
+                border border-white/30
+                rounded-3xl 
+                shadow-2xl
+                py-8 mb-8
+                md:py-16 px-10
+                min-h-[520px]
+                flex flex-col justify-center
+                transition-all duration-300 hover:scale-[1.02]">
 
+      <h1 class="text-[28px] font-semibold mb-10 text-white 
+                 flex items-center justify-center gap-3 tracking-wide">
 
-
-  <div class="relative z-10 flex items-center justify-between 
-            max-w-6xl w-full px-8">
-
-    <div class="w-[480px] 
-            bg-white/20 
-            backdrop-blur-xl 
-            border border-white/30
-            rounded-3xl 
-            shadow-2xl
-            py-16 px-10
-            min-h-[520px]
-            flex flex-col justify-center
-            transition-all duration-300 hover:scale-[1.02]">
-
-      <h1 class="text-[30px] font-semibold mb-8 text-white 
-           flex items-center justify-center gap-3
-           tracking-wide whitespace-nowrap"><svg
-          xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-10">
+        <!-- Shield Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" 
+             viewBox="0 0 24 24" 
+             fill="currentColor" 
+             class="size-8">
           <path fill-rule="evenodd"
             d="M12.516 2.17a.75.75 0 0 0-1.032 0 11.209 11.209 0 0 1-7.877 3.08.75.75 0 0 0-.722.515A12.74 12.74 0 0 0 2.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 0 0 .374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 0 0-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08Zm3.094 8.016a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z"
             clip-rule="evenodd" />
         </svg>
-        Smart Attendance Login</h1>
 
-      <input id="email" type="email" placeholder="Email"
-        class="input input-bordered w-full mb-6 bg-white text-black placeholder:font-semibold placeholder:text-lg" />
+        Smart Attendance
+      </h1>
 
-      <input id="password" type="password" placeholder="Password"
-        class="input input-bordered w-full mb-8 bg-white text-black placeholder:font-semibold placeholder:text-lg" />
+      <!-- FORM WRAPPER -->
+      <div id="formWrapper" class="relative">
 
-      <button id="loginBtn" class="w-full mt-2 py-3 rounded-xl 
-       bg-gradient-to-r from-indigo-600 to-purple-600 
-       text-white font-semibold tracking-wide
-       shadow-lg hover:shadow-2xl 
-       hover:scale-[1.02] 
-       transition-all duration-300"
->
-        Login
-      </button>
+        <!-- ===== LOGIN FORM ===== -->
+        <div id="loginForm" class="form-section active-form">
 
-      <p id="errorMsg" class="text-red-400 mt-4"></p>
+          <input id="email" type="email" placeholder="Email"
+            class="input input-bordered w-full mb-6 bg-white text-black placeholder:font-semibold placeholder:text-lg" />
+
+          <input id="password" type="password" placeholder="Password"
+            class="input input-bordered w-full mb-8 bg-white text-black placeholder:font-semibold placeholder:text-lg" />
+
+         <button id="loginBtn"
+  class="w-full mt-2 py-3 rounded-xl 
+         bg-gradient-to-r from-indigo-600 to-purple-600 
+         text-white font-semibold tracking-wide
+         shadow-lg hover:shadow-2xl 
+         hover:scale-[1.02] 
+         transition-all duration-300
+         flex items-center justify-center gap-2">
+
+  <span id="loginBtnText">Login</span>
+
+  <svg id="loginSpinner"
+       class="hidden animate-spin h-5 w-5 text-white"
+       xmlns="http://www.w3.org/2000/svg"
+       fill="none"
+       viewBox="0 0 24 24">
+    <circle class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"></circle>
+    <path class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v8H4z"></path>
+  </svg>
+
+</button>
+
+          <div class="mt-6 text-center text-white/80 text-sm">
+            Don’t have an account?
+            <span id="showRegister"
+              class="text-indigo-300 font-semibold cursor-pointer hover:text-indigo-200 transition">
+              Create Account
+            </span>
+          </div>
+
+        </div>
+
+        <!-- ===== REGISTER FORM ===== -->
+        <div id="registerForm" class="form-section">
+
+          <input id="regEmail" type="email" placeholder="Email"
+            class="input input-bordered w-full mb-6 bg-white text-black placeholder:font-semibold placeholder:text-lg" />
+
+          <input id="regPassword" type="password" placeholder="Password"
+            class="input input-bordered w-full mb-8 bg-white text-black placeholder:font-semibold placeholder:text-lg" />
+
+         <button id="registerBtn"
+  class="w-full mt-2 py-3 rounded-xl 
+         bg-gradient-to-r from-purple-600 to-indigo-600 
+         text-white font-semibold tracking-wide
+         shadow-lg hover:shadow-2xl 
+         hover:scale-[1.02] 
+         transition-all duration-300
+         flex items-center justify-center gap-2">
+
+  <span id="registerBtnText">Create Account</span>
+
+  <svg id="registerSpinner"
+       class="hidden animate-spin h-5 w-5 text-white"
+       xmlns="http://www.w3.org/2000/svg"
+       fill="none"
+       viewBox="0 0 24 24">
+    <circle class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"></circle>
+    <path class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v8H4z"></path>
+  </svg>
+
+</button>
+
+          <div class="mt-6 text-center text-white/80 text-sm">
+            Already have an account?
+            <span id="showLogin"
+              class="text-indigo-300 font-semibold cursor-pointer hover:text-indigo-200 transition">
+              Login
+            </span>
+          </div>
+
+        </div>
+
+        <!-- Error Message -->
+        <p id="errorMsg" class="text-red-400 mt-6 text-center"></p>
+
+      </div>
     </div>
 
-    <div class="max-w-xl text-white ml-20">
+    <!-- ================= RIGHT SIDE CONTENT ================= -->
+    <div class="max-w-xl text-white md:ml-20">
 
       <h1 class="text-6xl font-extrabold leading-tight mb-6 text-white/95">
-        Welcome To <span class="text-indigo-300">TASAS</span></h1>
-      <p class="text-lg text-white/75 leading-relaxed text-justify max-w-2xl">
-      Smart Hybrid Attendance System is a secure attendance platform that combines RFID authentication and AI-powered face recognition for accurate, tamper-proof verification. With multi-factor validation and real-time cloud sync, it prevents proxy attendance and delivers detailed analytics, performance tracking, and insights through an intuitive dashboard.</p>
-      <br>
-      <p class="mt-10 text-white/60 text-xl italic tracking-wide font-bold">Secure. Verified. Intelligent Attendance.</p>
-    </div>
-  </div>
+        Welcome To <span class="text-indigo-300">TASAS</span>
+      </h1>
 
+      <p class="text-lg text-white/75 leading-relaxed text-justify max-w-2xl">
+        Smart Hybrid Attendance System is a secure attendance platform that 
+        combines RFID authentication and AI-powered face recognition for accurate, 
+        tamper-proof verification. With multi-factor validation and real-time cloud sync, 
+        it prevents proxy attendance and delivers detailed analytics, performance tracking, 
+        and insights through an intuitive dashboard.
+      </p>
+
+      <p class="mt-10 text-white/60 text-xl italic tracking-wide font-bold">
+        Secure. Verified. Intelligent Attendance.
+      </p>
+
+    </div>
+
+  </div>
 
   <script type="module" src="login.js"></script>
 
