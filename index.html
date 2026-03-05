@@ -1,286 +1,427 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Smart Attendance Analytics</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<title>Smart Attendance Analytics</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- DaisyUI + Tailwind -->
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css" />
+<!-- DaisyUI + Tailwind -->
+<link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+<link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
 <!-- ================= NAVBAR ================= -->
 <nav class="fixed top-0 left-0 w-full z-50">
-  <div class="max-w-7xl mx-auto px-6 py-4">
-    <div class="flex items-center justify-between
-                bg-white/10 backdrop-blur-xl
-                border border-white/20
-                rounded-2xl
-                px-8 py-3
-                shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
 
-      <!-- Logo -->
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl
-                    bg-gradient-to-tr from-indigo-500 to-purple-600
-                    flex items-center justify-center
-                    text-white font-bold text-lg shadow-lg">
-          T
-        </div>
-        <span class="text-white text-xl font-semibold tracking-wide">
-          TASAS
-        </span>
-      </div>
+<div class="max-w-7xl mx-auto px-6 py-4">
 
-      <!-- Links -->
-      <div class="hidden md:flex items-center gap-8 text-white/80 text-base font-semibold">
+<div class="flex items-center justify-between
+bg-white/10 backdrop-blur-xl
+border border-white/20
+rounded-2xl
+px-8 py-3
+shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
 
-        <button onclick="showSection('dashboard')" class="nav-link text-white transition">
-          Dashboard
-        </button>
+<!-- Logo -->
+<div class="flex items-center gap-3">
 
-        <button onclick="showSection('analytics')" class="nav-link text-white/70 transition hover:text-white">
-          Analytics
-        </button>
+<div class="w-10 h-10 rounded-xl
+bg-gradient-to-tr from-indigo-500 to-purple-600
+flex items-center justify-center
+text-white font-bold text-lg shadow-lg">
+T
+</div>
 
-        <button onclick="showSection('students')" class="nav-link text-white/70 transition hover:text-white">
-          Students
-        </button>
+<span class="text-white text-xl font-semibold tracking-wide">
+TASAS
+</span>
 
-        <button onclick="showSection('settings')" class="nav-link text-white/70 transition hover:text-white">
-          ⚙ Settings
-        </button>
+</div>
 
-      </div>
+<!-- Links -->
+<div class="hidden md:flex items-center gap-8 text-white/80 text-base font-semibold">
 
-      <!-- Logout -->
-      <button id="logoutBtn"
-        class="px-6 py-3 rounded-lg
-               bg-gradient-to-r from-indigo-500 to-purple-600
-               text-white text-lg font-medium
-               shadow-lg hover:scale-105
-               transition duration-300">
-        Logout
-      </button>
+<button onclick="showSection('dashboard')" class="nav-link text-white transition">
+Dashboard
+</button>
 
-    </div>
-  </div>
+<button onclick="showSection('analytics')" class="nav-link text-white/70 transition hover:text-white">
+Analytics
+</button>
+
+<button onclick="showSection('students')" class="nav-link text-white/70 transition hover:text-white">
+Students
+</button>
+
+<button onclick="showSection('settings')" class="nav-link text-white/70 transition hover:text-white">
+⚙ Settings
+</button>
+
+</div>
+
+<!-- Logout -->
+<button id="logoutBtn"
+class="px-6 py-3 rounded-lg
+bg-gradient-to-r from-indigo-500 to-purple-600
+text-white text-lg font-medium
+shadow-lg hover:scale-105
+transition duration-300">
+Logout
+</button>
+
+</div>
+</div>
 </nav>
 
+
 <!-- ================= MAIN ================= -->
+
 <div class="container relative pt-32">
 
 <h1 class="text-[35px] font-semibold mb-8 text-white text-center">
-  Smart Attendance Analytics
+Smart Attendance Analytics
 </h1>
 
+
 <!-- ================= DASHBOARD ================= -->
+
 <div id="dashboardSection" class="section active-section">
 
-  <div class="stats mb-8">
-    <div class="card">Students<br><span id="totalCount">0</span></div>
-    <div class="card">Avg Attendance<br><span id="percentage">0%</span></div>
-    <div class="card danger">Low Attendance<br><span id="lowAttendance">0</span></div>
-  </div>
+<div class="stats mb-8">
 
-  <div class="chart-glass-container">
-    <h2 class="text-white text-lg mb-4">📘 Subject-wise Attendance (%)</h2>
-    <div class="chart-container h-[350px]">
-      <canvas id="subjectChart"></canvas>
-    </div>
-  </div>
-<!-- ================= RECENT ACTIVITY ================= -->
-<div class="mt-8 bg-white/5 backdrop-blur-xl border border-white/10
-      rounded-2xl p-6 shadow-lg">
+<div class="card">
+Students<br>
+<span id="totalCount">0</span>
+</div>
 
-  <div class="flex items-center justify-between mb-6">
-    <h2 class="text-white text-lg font-semibold">
-      🕒 Recent Activity
-    </h2>
-    <span class="text-sm text-white/50">
-      Live updates
-    </span>
-  </div>
+<div class="card">
+Avg Attendance<br>
+<span id="percentage">0%</span>
+</div>
 
-  <div id="recentActivityList"
-       class="space-y-4 max-h-[300px] overflow-y-auto">
-  </div>
+<div class="card danger">
+Low Attendance<br>
+<span id="lowAttendance">0</span>
+</div>
 
 </div>
+
+
+<div class="chart-glass-container">
+
+<h2 class="text-white text-lg mb-4">
+📘 Subject-wise Attendance (%)
+</h2>
+
+<div class="chart-container w-full h-[380px]">
+  <canvas id="subjectChart" class="w-full h-full"></canvas>
+</div>
+
+</div>
+
+
+<!-- ================= RECENT ACTIVITY ================= -->
+
+<div class="mt-8 bg-white/5 backdrop-blur-xl border border-white/10
+rounded-2xl p-6 shadow-lg">
+
+<div class="flex items-center justify-between mb-6">
+
+<h2 class="text-white text-lg font-semibold">
+🕒 Recent Activity
+</h2>
+
+<span class="text-sm text-white/50">
+Live updates
+</span>
+
+</div>
+
+<div id="recentActivityList"
+class="space-y-4 max-h-[300px] overflow-y-auto">
+</div>
+
+</div>
+
 </div>
 
 
 <!-- ================= ANALYTICS ================= -->
+
 <div id="analyticsSection" class="section">
 
-  <div class="table-glass-container">
+<div class="table-glass-container">
 
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-white text-lg font-semibold">
-        📋 Student Attendance (Course-wise)
-      </h2>
+<div class="flex justify-between items-center mb-6">
 
-      <input type="text" id="searchInput"
-        placeholder="Search by ID or Name..."
-        class="px-4 py-2 rounded-lg bg-white/10 border border-white/20
-               text-white placeholder-white/50 text-sm
-               focus:outline-none focus:ring-2 focus:ring-indigo-500 w-64" />
-    </div>
+<h2 class="text-white text-lg font-semibold">
+📋 Student Attendance (Course-wise)
+</h2>
 
-    <!-- Subject Filter -->
-    <div class="mb-6 flex items-center gap-4">
+<input type="text"
+id="searchInput"
+placeholder="Search by ID or Name..."
+class="px-4 py-2 rounded-lg bg-white/10 border border-white/20
+text-white placeholder-white/50 text-sm
+focus:outline-none focus:ring-2 focus:ring-indigo-500 w-64">
 
-      <label class="text-white font-medium">
-        Select Subject:
-      </label>
-
-      <select id="subjectSelect"
-        class="px-4 py-2 rounded-lg bg-white/10 border border-white/20
-               text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        <option value="">All Subjects</option>
-      </select>
-
-      <div id="subjectSummary"
-           class="px-4 py-2 rounded-lg bg-indigo-500/10
-                  border border-indigo-400/30
-                  text-indigo-300 text-sm hidden">
-      </div>
-
-    </div>
-
-    <table id="attendanceTable">
-      <thead>
-        <tr>
-          <th>Student ID</th>
-          <th>Name</th>
-          <th>Course</th>
-          <th>Total</th>
-          <th>Present</th>
-          <th>%</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-
-  </div>
 </div>
+
+
+<!-- SUBJECT FILTER -->
+
+<div class="mb-6 flex items-center gap-4">
+
+<label class="text-white font-medium">
+Select Subject:
+</label>
+
+<select id="subjectSelect"
+class="px-4 py-2 rounded-lg bg-white/10 border border-white/20
+text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+
+<option value="">All Subjects</option>
+
+</select>
+
+</div>
+
+
+<table id="attendanceTable">
+
+<thead>
+
+<tr>
+<th>Student ID</th>
+<th>Name</th>
+<th>Course</th>
+<th>Total</th>
+<th>Present</th>
+<th>%</th>
+<th>Status</th>
+</tr>
+
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+</div>
+
+</div>
+
 
 <!-- ================= STUDENTS ================= -->
+
 <div id="studentsSection" class="section pt-32 px-6">
 
-  <div class="max-w-7xl mx-auto">
+<div class="max-w-7xl mx-auto">
 
-    <div class="flex justify-between items-center mb-8">
-      <h2 class="text-3xl font-semibold text-white">
-        👨‍🎓 Students
-      </h2>
+<div class="flex justify-between items-center mb-8">
 
-      <input id="studentSearch"
-        type="text"
-        placeholder="Search student..."
-        class="px-4 py-2 rounded-xl
-               bg-white/10 border border-white/20
-               text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-    </div>
+<h2 class="text-3xl font-semibold text-white">
+👨‍🎓 Students
+</h2>
 
-    <div id="studentsGrid" class="grid md:grid-cols-3 gap-6"></div>
+<input id="studentSearch"
+type="text"
+placeholder="Search student..."
+class="px-4 py-2 rounded-xl
+bg-white/10 border border-white/20
+text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
 
-  </div>
 </div>
 
-<!-- ================= SETTINGS ================= -->
-<div id="settingsSection" class="section pt-16">
+<div id="studentsGrid" class="grid md:grid-cols-3 gap-6"></div>
 
-  <div class="max-w-5xl mx-auto bg-white/5 backdrop-blur-xl
-              border border-white/10 rounded-2xl p-8 shadow-lg">
+</div>
 
-    <h2 class="text-3xl font-semibold text-white mb-8">
-      ⚙ System Settings
-    </h2>
+</div>
 
-    <div class="mb-10">
-      <h3 class="text-xl text-indigo-800 mb-4">
-        System Configurations
-      </h3>
 
-      <div class="grid md:grid-cols-2 gap-6">
-        <div>
-          <label class="text-white/70 block mb-2">
-            Minimum Attendance %
-          </label>
-          <input id="minAttendance" type="number" value="75"
-            class="w-full px-4 py-2 rounded-lg bg-white/10
-                   border border-white/20 text-white" />
-        </div>
+<div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8">
 
-        <div>
-          <label class="text-white/70 block mb-2">
-            Perfect Attendance Threshold %
-          </label>
-          <input id="perfectAttendance" type="number" value="90"
-            class="w-full px-4 py-2 rounded-lg bg-white/10
-                   border border-white/20 text-white" />
-        </div>
+<h2 class="text-3xl font-semibold text-white mb-8">
+⚙ System Settings
+</h2>
+
+<!-- ATTENDANCE SETTINGS -->
+
+<div class="grid md:grid-cols-2 gap-6">
+
+<div>
+<label class="text-white/70 block mb-2">
+Minimum Attendance %
+</label>
+
+<input id="minAttendance"
+type="number"
+value="75"
+class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+
+</div>
+
+<div>
+<label class="text-white/70 block mb-2">
+Perfect Attendance Threshold %
+</label>
+
+<input id="perfectAttendance"
+type="number"
+value="90"
+class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+
+</div>
+
+</div>
+
+<!-- TRUST SCORE RULES -->
+
+<h3 class="text-lg text-indigo-400 mt-10 mb-6">
+Trust Score Rules
+</h3>
+
+<div class="grid md:grid-cols-3 gap-6">
+
+<div>
+<label class="text-white/70 block mb-2">
+Face Recognition Weight (%)
+</label>
+
+<input id="faceWeight"
+type="number"
+value="60"
+class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+
+</div>
+
+<div>
+<label class="text-white/70 block mb-2">
+RFID Weight (%)
+</label>
+
+<input id="rfidWeight"
+type="number"
+value="30"
+class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+
+</div>
+
+<div>
+<label class="text-white/70 block mb-2">
+Punctuality Weight (%)
+</label>
+
+<input id="punctualWeight"
+type="number"
+value="10"
+class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+
+</div>
+
+</div>
+
+<!-- SAVE BUTTON -->
+
+<button onclick="saveSettings()"
+class="mt-8 w-full px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold hover:scale-105 transition">
+
+Save Settings
+
+</button>
+
+</div>
+
+
+<!-- STUDENT MODAL -->
+
+<div id="studentModal"
+class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999]">
+
+  <div class="bg-[#0f1b2d] w-[520px] max-w-[90%] p-8 rounded-2xl shadow-2xl text-white relative">
+
+    <!-- CLOSE BUTTON -->
+    <button onclick="closeStudentModal()"
+      class="absolute top-4 right-5 text-2xl text-gray-400 hover:text-white transition">
+      ✕
+    </button>
+
+    <!-- TITLE -->
+    <h2 id="modalName" class="text-2xl font-bold mb-2"></h2>
+
+    <p class="text-gray-400 mb-6">
+      ID: <span id="modalId"></span>
+    </p>
+
+    <!-- GRID INFO -->
+    <div class="grid grid-cols-2 gap-6 mb-6">
+
+      <div>
+        <p class="text-gray-400 text-sm">Attendance</p>
+        <p class="text-xl font-semibold">
+          <span id="modalAttendance"></span>%
+        </p>
       </div>
+
+      <div>
+        <p class="text-gray-400 text-sm">Trust Score</p>
+        <p class="text-xl font-semibold text-green-400">
+          <span id="modalTrust"></span>%
+        </p>
+      </div>
+
     </div>
 
-    <div>
-      <h3 class="text-xl text-indigo-800 mb-4">
-        Trust Score Rules
-      </h3>
+    <!-- ATTENDANCE BAR -->
+    <div class="mb-5">
 
-      <div class="grid md:grid-cols-3 gap-6">
+      <p class="text-sm mb-2 text-gray-300">
+        Attendance Progress
+      </p>
 
-        <div>
-          <label class="text-white/70 block mb-2">
-            Face Recognition Weight (%)
-          </label>
-          <input id="faceWeight" type="number" value="60"
-            class="w-full px-4 py-2 rounded-lg bg-white/10
-                   border border-white/20 text-white" />
-        </div>
+      <div class="w-full bg-gray-700 rounded-full h-3">
 
-        <div>
-          <label class="text-white/70 block mb-2">
-            RFID Weight (%)
-          </label>
-          <input id="rfidWeight" type="number" value="30"
-            class="w-full px-4 py-2 rounded-lg bg-white/10
-                   border border-white/20 text-white" />
-        </div>
-
-        <div>
-          <label class="text-white/70 block mb-2">
-            Punctuality Weight (%)
-          </label>
-          <input id="punctualityWeight" type="number" value="10"
-            class="w-full px-4 py-2 rounded-lg bg-white/10
-                   border border-white/20 text-white" />
+        <div id="attendanceProgress"
+        class="bg-blue-500 h-3 rounded-full transition-all duration-500">
         </div>
 
       </div>
 
-      <button onclick="saveSettings()"
-        class="mt-6 px-6 py-3 rounded-lg
-               bg-gradient-to-r from-indigo-500 to-purple-600
-               text-white font-semibold hover:scale-105 transition">
-        Save Settings
-      </button>
+    </div>
+
+    <!-- TRUST BAR -->
+    <!-- TRUST BAR -->
+<div>
+
+<p class="text-sm mb-2 text-gray-300">
+Trust Score
+</p>
+
+<div class="w-full bg-gray-700 rounded-full h-3">
+
+<div id="trustProgress"
+class="bg-green-500 h-3 rounded-full transition-all duration-500">
+</div>
+
+</div>
+
+</div>
+
+<p id="trustRemark" class="mt-4 text-sm text-gray-300"></p>
 
     </div>
 
   </div>
-</div>
 
 </div>
 
@@ -288,88 +429,5 @@
 <script type="module" src="firebaseConfig.js"></script>
 <script type="module" src="app.js"></script>
 
-
-<!-- ================= STUDENT INSIGHT MODAL ================= -->
-<div id="insightModal"
-     class="fixed inset-0 bg-black/60 backdrop-blur-sm
-            hidden items-center justify-center z-50">
-
-  <div class="bg-[#111c2d] text-white
-              w-11/12 max-w-4xl
-              rounded-2xl shadow-2xl p-8 relative">
-
-    <!-- Close Button -->
-    <button onclick="closeInsightModal()"
-            class="absolute top-4 right-4
-                   bg-red-500 hover:bg-red-600
-                   px-3 py-1 rounded text-sm">
-      Close
-    </button>
-
-    <h2 class="text-2xl font-semibold mb-6">
-      Student Attendance Insight
-    </h2>
-
-    <div class="grid grid-cols-2 gap-6">
-
-      <div>
-        <p class="text-gray-400">Student ID</p>
-        <p id="insightId" class="font-semibold"></p>
-      </div>
-
-      <div>
-        <p class="text-gray-400">Total Classes</p>
-        <p id="insightTotal" class="font-semibold"></p>
-      </div>
-
-      <div>
-        <p class="text-gray-400">Name</p>
-        <p id="insightName" class="font-semibold"></p>
-      </div>
-
-      <div>
-        <p class="text-gray-400">Present</p>
-        <p id="insightPresent" class="font-semibold"></p>
-      </div>
-
-      <div>
-        <p class="text-gray-400">Course</p>
-        <p id="insightCourse" class="font-semibold"></p>
-      </div>
-
-      <div>
-        <p class="text-gray-400">Attendance</p>
-        <p id="insightPercent" class="font-semibold"></p>
-      </div>
-
-      <div>
-        <p class="text-gray-400">Trust Score</p>
-        <p id="insightTrust" class="font-semibold"></p>
-      </div>
-
-    </div>
-
-    <!-- Attendance Bar -->
-    <div class="mt-8">
-      <p class="mb-2 font-medium">Attendance Progress</p>
-      <div class="w-full h-4 bg-white/20 rounded-full overflow-hidden">
-        <div id="attendanceProgress"
-             class="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 transition-all duration-500">
-        </div>
-      </div>
-    </div>
-
-    <!-- Trust Bar -->
-    <div class="mt-6">
-      <p class="mb-2 font-medium">Trust Score</p>
-      <div class="w-full h-4 bg-white/20 rounded-full overflow-hidden">
-        <div id="trustProgress"
-             class="h-full bg-green-500 transition-all duration-500">
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
 </body>
 </html>
