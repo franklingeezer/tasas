@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 
@@ -6,10 +7,8 @@
 <title>Smart Attendance Analytics</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- DaisyUI + Tailwind -->
 <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
@@ -20,6 +19,7 @@
 <body>
 
 <!-- ================= NAVBAR ================= -->
+
 <nav class="fixed top-0 left-0 w-full z-50">
 
 <div class="max-w-7xl mx-auto px-6 py-4">
@@ -31,7 +31,6 @@ rounded-2xl
 px-8 py-3
 shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
 
-<!-- Logo -->
 <div class="flex items-center gap-3">
 
 <div class="w-10 h-10 rounded-xl
@@ -47,7 +46,6 @@ TASAS
 
 </div>
 
-<!-- Links -->
 <div class="hidden md:flex items-center gap-8 text-white/80 text-base font-semibold">
 
 <button onclick="showSection('dashboard')" class="nav-link text-white transition">
@@ -68,20 +66,17 @@ Students
 
 </div>
 
-<!-- Logout -->
 <button id="logoutBtn"
 class="px-6 py-3 rounded-lg
 bg-gradient-to-r from-indigo-500 to-purple-600
 text-white text-lg font-medium
 shadow-lg hover:scale-105
 transition duration-300">
-Logout
-</button>
+Logout </button>
 
 </div>
 </div>
 </nav>
-
 
 <!-- ================= MAIN ================= -->
 
@@ -90,7 +85,6 @@ Logout
 <h1 class="text-[35px] font-semibold mb-8 text-white text-center">
 Smart Attendance Analytics
 </h1>
-
 
 <!-- ================= DASHBOARD ================= -->
 
@@ -115,7 +109,6 @@ Low Attendance<br>
 
 </div>
 
-
 <div class="chart-glass-container">
 
 <h2 class="text-white text-lg mb-4">
@@ -123,13 +116,10 @@ Low Attendance<br>
 </h2>
 
 <div class="chart-container w-full h-[380px]">
-  <canvas id="subjectChart" class="w-full h-full"></canvas>
+<canvas id="subjectChart"></canvas>
 </div>
 
 </div>
-
-
-<!-- ================= RECENT ACTIVITY ================= -->
 
 <div class="mt-8 bg-white/5 backdrop-blur-xl border border-white/10
 rounded-2xl p-6 shadow-lg">
@@ -154,7 +144,6 @@ class="space-y-4 max-h-[300px] overflow-y-auto">
 
 </div>
 
-
 <!-- ================= ANALYTICS ================= -->
 
 <div id="analyticsSection" class="section">
@@ -176,9 +165,6 @@ focus:outline-none focus:ring-2 focus:ring-indigo-500 w-64">
 
 </div>
 
-
-<!-- SUBJECT FILTER -->
-
 <div class="mb-6 flex items-center gap-4">
 
 <label class="text-white font-medium">
@@ -194,7 +180,6 @@ text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
 </select>
 
 </div>
-
 
 <table id="attendanceTable">
 
@@ -219,7 +204,6 @@ text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
 </div>
 
 </div>
-
 
 <!-- ================= STUDENTS ================= -->
 
@@ -248,14 +232,17 @@ text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
 
 </div>
 
+<!-- ================= SETTINGS ================= -->
+
+<div id="settingsSection" class="section pt-32 px-6">
+
+<div class="max-w-7xl mx-auto">
 
 <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8">
 
 <h2 class="text-3xl font-semibold text-white mb-8">
 ⚙ System Settings
 </h2>
-
-<!-- ATTENDANCE SETTINGS -->
 
 <div class="grid md:grid-cols-2 gap-6">
 
@@ -285,8 +272,6 @@ class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white
 
 </div>
 
-<!-- TRUST SCORE RULES -->
-
 <h3 class="text-lg text-indigo-400 mt-10 mb-6">
 Trust Score Rules
 </h3>
@@ -298,9 +283,7 @@ Trust Score Rules
 Face Recognition Weight (%)
 </label>
 
-<input id="faceWeight"
-type="number"
-value="60"
+<input id="faceWeight" type="number" value="60"
 class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
 
 </div>
@@ -310,9 +293,7 @@ class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white
 RFID Weight (%)
 </label>
 
-<input id="rfidWeight"
-type="number"
-value="30"
+<input id="rfidWeight" type="number" value="30"
 class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
 
 </div>
@@ -322,85 +303,74 @@ class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white
 Punctuality Weight (%)
 </label>
 
-<input id="punctualWeight"
-type="number"
-value="10"
+<input id="punctualWeight" type="number" value="10"
 class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
 
 </div>
 
 </div>
 
-<!-- SAVE BUTTON -->
-
 <button onclick="saveSettings()"
 class="mt-8 w-full px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold hover:scale-105 transition">
-
-Save Settings
-
-</button>
+Save Settings </button>
 
 </div>
 
+</div>
 
-<!-- STUDENT MODAL -->
+</div>
+
+<!-- ================= STUDENT MODAL ================= -->
 
 <div id="studentModal"
 class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999]">
 
-  <div class="bg-[#0f1b2d] w-[520px] max-w-[90%] p-8 rounded-2xl shadow-2xl text-white relative">
+<div class="bg-[#0f1b2d] w-[520px] max-w-[90%] p-8 rounded-2xl shadow-2xl text-white relative">
 
-    <!-- CLOSE BUTTON -->
-    <button onclick="closeStudentModal()"
-      class="absolute top-4 right-5 text-2xl text-gray-400 hover:text-white transition">
-      ✕
-    </button>
+<button onclick="closeStudentModal()"
+class="absolute top-4 right-5 text-2xl text-gray-400 hover:text-white transition">
+✕ </button>
 
-    <!-- TITLE -->
-    <h2 id="modalName" class="text-2xl font-bold mb-2"></h2>
+<h2 id="modalName" class="text-2xl font-bold mb-2"></h2>
 
-    <p class="text-gray-400 mb-6">
-      ID: <span id="modalId"></span>
-    </p>
+<p class="text-gray-400 mb-6">
+ID: <span id="modalId"></span>
+</p>
 
-    <!-- GRID INFO -->
-    <div class="grid grid-cols-2 gap-6 mb-6">
+<div class="grid grid-cols-2 gap-6 mb-6">
 
-      <div>
-        <p class="text-gray-400 text-sm">Attendance</p>
-        <p class="text-xl font-semibold">
-          <span id="modalAttendance"></span>%
-        </p>
-      </div>
+<div>
+<p class="text-gray-400 text-sm">Attendance</p>
+<p class="text-xl font-semibold">
+<span id="modalAttendance"></span>%
+</p>
+</div>
 
-      <div>
-        <p class="text-gray-400 text-sm">Trust Score</p>
-        <p class="text-xl font-semibold text-green-400">
-          <span id="modalTrust"></span>%
-        </p>
-      </div>
+<div>
+<p class="text-gray-400 text-sm">Trust Score</p>
+<p class="text-xl font-semibold text-green-400">
+<span id="modalTrust"></span>%
+</p>
+</div>
 
-    </div>
+</div>
 
-    <!-- ATTENDANCE BAR -->
-    <div class="mb-5">
+<div class="mb-5">
 
-      <p class="text-sm mb-2 text-gray-300">
-        Attendance Progress
-      </p>
+<p class="text-sm mb-2 text-gray-300">
+Attendance Progress
+</p>
 
-      <div class="w-full bg-gray-700 rounded-full h-3">
+<div class="w-full bg-gray-700 rounded-full h-3">
 
-        <div id="attendanceProgress"
-        class="bg-blue-500 h-3 rounded-full transition-all duration-500">
-        </div>
+<div id="attendanceProgress"
+class="bg-blue-500 h-3 rounded-full transition-all duration-500">
+</div>
 
-      </div>
+</div>
 
-    </div>
+</div>
 
-    <!-- TRUST BAR -->
-    <!-- TRUST BAR -->
 <div>
 
 <p class="text-sm mb-2 text-gray-300">
@@ -419,14 +389,12 @@ class="bg-green-500 h-3 rounded-full transition-all duration-500">
 
 <p id="trustRemark" class="mt-4 text-sm text-gray-300"></p>
 
-    </div>
-
-  </div>
+</div>
 
 </div>
 
-<!-- Firebase Scripts -->
 <script type="module" src="firebaseConfig.js"></script>
+
 <script type="module" src="app.js"></script>
 
 </body>
