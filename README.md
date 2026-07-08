@@ -197,31 +197,6 @@ or deploy using Firebase Hosting.
 
 ---
 
-# 📸 Screenshots
-
-## Login Interface
-
-<img src="assets/login.png">
-
----
-
-## Dashboard
-
-<img src="assets/dashboard.png">
-
----
-
-## Hardware Prototype
-
-<img src="assets/hardware.jpg">
-
----
-
-## System Architecture
-
-<img src="assets/architecture.png">
-
----
 
 # 📚 Project Report
 
