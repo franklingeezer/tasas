@@ -1,10 +1,6 @@
 # 🚀 Trust Aware Smart Attendance System (TASAS)
 
-<p align="center">
-  <img src="assets/login.png" width="900">
-</p>
 
-<p align="center">
 
 **Secure • Intelligent • Cloud Connected • IoT Powered**
 
