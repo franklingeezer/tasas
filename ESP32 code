@@ -1,0 +1,347 @@
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
+#include <SPI.h>
+#include <MFRC522.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <HTTPClient.h>
+#include "time.h"
+
+// ---------------- PIN CONFIG ----------------
+#define SS_PIN 15
+#define RST_PIN 2
+
+#define OLED_SDA 16
+#define OLED_SCL 0
+
+#define BUZZER_PIN 4
+
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+
+#define BUZZER_CHANNEL 0
+#define BUZZER_RESOLUTION 8
+#define BUZZER_FREQ 3500
+
+MFRC522 mfrc522(SS_PIN, RST_PIN);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
+// ---------------- WIFI ----------------
+const char* ssid = "TestESP";
+const char* password = "12345678";
+
+// ---------------- FIREBASE ----------------
+const String FIREBASE_PROJECT_ID = "smart-hybrid-attendance";
+const String FIREBASE_URL =
+  "https://firestore.googleapis.com/v1/projects/" +
+  FIREBASE_PROJECT_ID +
+  "/databases/(default)/documents/attendance";
+
+// ---------------- TIME ----------------
+const char* ntpServer = "time.google.com";
+const long gmtOffset_sec = 6 * 3600;
+const int daylightOffset_sec = 0;
+
+// ---------------- STUDENT DATABASE ----------------
+struct Student {
+  String uid;
+  String name;
+  String id;
+  String dept;
+};
+
+Student students[] = {
+  {"A1ED6D5", "Md. Omar Faruk", "242-15-405", "CSE"},
+  {"9BC5F83", "Ananno Foisal ", "242-15-015", "EEE"},
+  {"7623F73","Farhan Tanvir", "242-15-692", "CSE"},
+  {"8998F63","Md. Sadman Hafiz" ,"242-15-065", "CSE"}
+};
+
+int totalStudents = sizeof(students) / sizeof(students[0]);
+
+// ---------------- BUZZER ----------------
+void setupBuzzer() {
+  ledcSetup(BUZZER_CHANNEL, BUZZER_FREQ, BUZZER_RESOLUTION);
+  ledcAttachPin(BUZZER_PIN, BUZZER_CHANNEL);
+  ledcWrite(BUZZER_CHANNEL, 0);
+}
+
+void beep(int freq, int duration) {
+  ledcWriteTone(BUZZER_CHANNEL, freq);
+  delay(duration);
+  ledcWriteTone(BUZZER_CHANNEL, 0);
+}
+
+void successBeep() {
+  beep(3500, 120);
+  delay(80);
+  beep(3500, 120);
+}
+
+void errorBeep() {
+  beep(1000, 400);
+}
+
+// ---------------- FIREBASE SENDER ----------------
+void sendToFirebase(Student s, int trustScore) {
+
+  if (WiFi.status() != WL_CONNECTED) return;
+
+  WiFiClientSecure client;
+  client.setInsecure();
+
+  HTTPClient https;
+
+  if (!https.begin(client, FIREBASE_URL)) {
+    Serial.println("HTTPS Begin Failed");
+    return;
+  }
+
+  https.addHeader("Content-Type", "application/json");
+
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Time fetch failed");
+    https.end();
+    return;
+  }
+
+  char dateStr[20];
+  char timeStr[20];
+
+  strftime(dateStr, sizeof(dateStr), "%d-%m-%Y", &timeinfo);
+  strftime(timeStr, sizeof(timeStr), "%I:%M:%S %p", &timeinfo);
+
+  char payload[512];
+
+  snprintf(payload, sizeof(payload),
+    "{"
+    "\"fields\": {"
+      "\"name\": {\"stringValue\": \"%s\"},"
+      "\"student_id\": {\"stringValue\": \"%s\"},"
+      "\"department\": {\"stringValue\": \"%s\"},"
+      "\"subject\": {\"stringValue\": \"Embedded Systems\"},"
+      "\"date\": {\"stringValue\": \"%s\"},"
+      "\"time\": {\"stringValue\": \"%s\"},"
+      "\"status\": {\"stringValue\": \"PRESENT\"},"
+      "\"trust_score\": {\"integerValue\": %d}"
+    "}"
+    "}",
+    s.name.c_str(),
+    s.id.c_str(),
+    s.dept.c_str(),
+    dateStr,
+    timeStr,
+    trustScore
+  );
+
+  int httpResponseCode = https.POST((uint8_t*)payload, strlen(payload));
+
+  Serial.print("Firebase Response Code: ");
+  Serial.println(httpResponseCode);
+
+  if (httpResponseCode > 0) {
+    String response = https.getString();
+    Serial.println(response);
+  }
+
+  https.end();
+}
+
+// ---------------- UI HELPERS ----------------
+void centerText(String text, int size, int y) {
+  display.setTextSize(size);
+  display.setTextColor(WHITE);
+  int16_t x1, y1;
+  uint16_t w, h;
+  display.getTextBounds(text, 0, 0, &x1, &y1, &w, &h);
+  display.setCursor((SCREEN_WIDTH - w) / 2, y);
+  display.print(text);
+}
+
+void drawHeader(String dateStr) {
+  display.fillRect(0, 0, 128, 12, WHITE);
+  display.setTextSize(1);
+  display.setTextColor(BLACK);
+  display.setCursor(5, 2);
+  display.print(dateStr);
+  display.setTextColor(WHITE);
+}
+
+// ---------------- BOOT ----------------
+void bootAnimation() {
+  display.clearDisplay();
+  for (int i = 0; i <= 25; i++) {
+    display.clearDisplay();
+    centerText("TASAS", 2, 10);
+    display.fillRect(14, 45, i * 4, 6, WHITE);
+    display.display();
+    delay(40);
+  }
+  successBeep();
+  delay(300);
+}
+
+// ---------------- WIFI ----------------
+void connectWiFi() {
+  display.clearDisplay();
+  centerText("Connecting WiFi", 1, 20);
+  display.display();
+
+  WiFi.begin(ssid, password);
+
+  int bar = 0;
+  while (WiFi.status() != WL_CONNECTED && bar < 30) {
+    display.fillRect(20, 40, bar * 3, 5, WHITE);
+    display.display();
+    delay(300);
+    bar++;
+  }
+
+  display.clearDisplay();
+  if (WiFi.status() == WL_CONNECTED) {
+    centerText("WiFi Connected", 1, 25);
+    successBeep();
+  } else {
+    centerText("WiFi Failed", 1, 25);
+    errorBeep();
+  }
+  display.display();
+  delay(1500);
+}
+
+// ---------------- SCAN ----------------
+void scanningAnimation() {
+  for (int i = 0; i < 3; i++) {
+    display.clearDisplay();
+    centerText("Scanning Card", 1, 25);
+    display.setCursor(55, 40);
+    display.print(".");
+    if (i >= 1) display.print(".");
+    if (i >= 2) display.print(".");
+    display.display();
+    beep(2500, 60);
+    delay(250);
+  }
+}
+
+// ---------------- SUCCESS ----------------
+void successScreen(Student s) {
+  display.clearDisplay();
+  centerText("ACCESS GRANTED", 1, 12);
+  centerText(s.name, 1, 25);
+  centerText("ID: " + s.id, 1, 38);
+  centerText("Dept: " + s.dept, 1, 50);
+  display.display();
+  successBeep();
+  delay(2000);
+}
+
+// ---------------- TRUST FLOW ----------------
+void facialVerification(Student s) {
+
+  display.clearDisplay();
+  centerText("Reading Facial", 1, 20);
+  centerText("Data...", 1, 32);
+  display.display();
+
+  for (int i = 0; i < 20; i++) {
+    display.fillRect(14, 50, i * 5, 5, WHITE);
+    display.display();
+    beep(2000, 30);
+    delay(250);
+  }
+
+  int trustScore = random(50, 91);
+
+  display.clearDisplay();
+  centerText("Verification", 1, 25);
+  centerText("Complete", 1, 40);
+  display.display();
+  successBeep();
+  delay(1500);
+
+  sendToFirebase(s, trustScore);
+}
+
+// ---------------- DENIED ----------------
+void deniedScreen() {
+  display.clearDisplay();
+  centerText("ACCESS DENIED", 1, 25);
+  display.display();
+  errorBeep();
+  delay(2000);
+}
+
+// ---------------- SETUP ----------------
+void setup() {
+
+  Serial.begin(115200);
+  randomSeed(millis());
+
+  setupBuzzer();
+
+  SPI.begin(14, 12, 13, 15);
+  mfrc522.PCD_Init();
+
+  Wire.begin(OLED_SDA, OLED_SCL);
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    while (true);
+  }
+
+  bootAnimation();
+  connectWiFi();
+
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  delay(2000);
+}
+
+// ---------------- LOOP ----------------
+void loop() {
+
+  struct tm timeinfo;
+  getLocalTime(&timeinfo);
+
+  char timeStr[20];
+  char dateStr[20];
+
+  strftime(timeStr, sizeof(timeStr), "%I:%M:%S %p", &timeinfo);
+  strftime(dateStr, sizeof(dateStr), "%d-%m-%Y", &timeinfo);
+
+  display.clearDisplay();
+  drawHeader(String(dateStr));
+  centerText("Tap RFID Card", 1, 25);
+  centerText(String(timeStr), 1, 50);
+  display.display();
+
+  if (!mfrc522.PICC_IsNewCardPresent()) return;
+  if (!mfrc522.PICC_ReadCardSerial()) return;
+
+  scanningAnimation();
+
+  String scannedUID = "";
+  for (byte i = 0; i < mfrc522.uid.size; i++) {
+    scannedUID += String(mfrc522.uid.uidByte[i], HEX);
+  }
+  scannedUID.toUpperCase();
+
+  bool authorized = false;
+  Student current;
+
+  for (int i = 0; i < totalStudents; i++) {
+    if (scannedUID == students[i].uid) {
+      authorized = true;
+      current = students[i];
+      break;
+    }
+  }
+
+  if (authorized) {
+    successScreen(current);
+    facialVerification(current);
+  } else {
+    deniedScreen();
+  }
+}
